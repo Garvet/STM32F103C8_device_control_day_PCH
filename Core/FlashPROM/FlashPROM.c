@@ -10,7 +10,7 @@ uint32_t res_addr;
 void Read_control_module_info_from_flash(uint32_t *buff) {
 
 	  res_addr = Flash_search_adress(STARTADDR, BUFFSIZE * DATAWIDTH);
-
+//	  res_addr = STARTADDR + BUFFSIZE * DATAWIDTH; // костыль
 	  Read_last_data_in_flash(buff);
 
 //	  if (rdata[0] == 0x0000) {
@@ -23,13 +23,27 @@ void Read_control_module_info_from_flash(uint32_t *buff) {
 }
 
 //////////////////////// ОЧИСТКА ПАМЯТИ /////////////////////////////
-void Erase_flash(void)
-{
+bool Erase_flash(uint8_t num) {
+	if(2 < num)
+		return true;
 	static FLASH_EraseInitTypeDef EraseInitStruct;     // структура для очистки флеша
 
 	EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES; // постраничная очистка, FLASH_TYPEERASE_MASSERASE - очистка всего флеша
-	EraseInitStruct.PageAddress = STARTADDR;
-	EraseInitStruct.NbPages = PAGES;
+
+	EraseInitStruct.NbPages = 1;
+	switch (num) {
+		case 0:
+			EraseInitStruct.NbPages = 2;
+		case 1:
+			EraseInitStruct.PageAddress = STARTADDR;
+			break;
+		case 2:
+			EraseInitStruct.PageAddress = STARTADDR_2;
+			break;
+	}
+//	EraseInitStruct.PageAddress = STARTADDR;
+//	EraseInitStruct.NbPages = PAGES;
+
 	//EraseInitStruct.Banks = FLASH_BANK_1; // FLASH_BANK_2 - банк №2, FLASH_BANK_BOTH - оба банка
 	uint32_t page_error = 0; // переменная, в которую запишется адрес страницы при неудачном стирании
 
@@ -59,7 +73,7 @@ uint32_t Flash_search_adress(uint32_t address, uint16_t cnt)
 
 		if(address == ENDMEMORY - 1) // если достигнут конец флеша
 		{
-			Erase_flash();        // тогда очищаем память
+			Erase_flash(1);        // тогда очищаем память
 			return STARTADDR;     // устанавливаем адрес для записи с самого начала
 		}
 	}
@@ -71,7 +85,7 @@ uint32_t Flash_search_adress(uint32_t address, uint16_t cnt)
 void Write_to_flash(uint32_t *buff)
 {
 	res_addr = Flash_search_adress(res_addr, BUFFSIZE * DATAWIDTH); // ищем свободные ячейки начиная с последнего известного адреса
-
+//	res_addr = STARTADDR + BUFFSIZE * DATAWIDTH; // костыль
 	//////////////////////// ЗАПИСЬ ////////////////////////////
 	HAL_FLASH_Unlock(); // разблокировать флеш
 
@@ -126,3 +140,27 @@ void Read_last_data_in_flash(uint32_t *buff)
 }
 
 
+uint16_t Read_PWM_info_from_flash() {
+	uint32_t addr = STARTADDR_2 + CELL_OFFSET_PWM_VALUES * DATAWIDTH;
+	if(4095 < *(uint32_t*)addr)
+		return 4095;
+	return *(uint32_t*)addr;
+}
+
+bool Write_PWM_to_flash(uint16_t value) {
+	uint32_t value_32 = value;
+	uint32_t addr = STARTADDR_2 + CELL_OFFSET_PWM_VALUES * DATAWIDTH;
+	bool result = true; // Err
+
+	if(4095 < value)
+		return result;
+	Erase_flash(2);
+
+	HAL_FLASH_Unlock(); // разблокировать флеш
+	if(HAL_FLASH_Program(WIDTHWRITE, addr, value_32) != HAL_OK) {
+		result = false; // Not Err
+	}
+	HAL_FLASH_Lock(); // заблокировать флеш
+
+	return result;
+}

@@ -317,6 +317,7 @@ int main(void)
 
   Read_control_module_info_from_flash(control_module_id_and_channel);
   Get_control_module_info_from_main(control_module_id_and_channel);
+  pump_pwm = Read_PWM_info_from_flash();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -542,6 +543,7 @@ int main(void)
     		if(set_pwm) { // set PWM from server
     			set_pwm = false;
     			pump_pwm = set_pump_pwm;
+    			Write_PWM_to_flash(pump_pwm);
     		}
 //    		static uint16_t pump_pwm;
             if(all_channel[0].state) {
