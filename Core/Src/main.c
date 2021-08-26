@@ -213,18 +213,21 @@ void use_valve() { // REVERT
 //	// HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET); // RELAY4
 //}
 
-
-const uint16_t PUMP_PWM_DAY  = 4095;
+//const uint16_t PUMP_PWM_DAY  = 4095;
 const unsigned long PUMP_ON_DAY  = (1 * 60 + 00) * 1000; // (1 * 60 + 00) * 1000;
 const unsigned long PUMP_OFF_DAY = (4 * 60 + 00) * 1000; // (4 * 60 + 00) * 1000;
 const unsigned long VALVE_ON_DAY = (0 * 60 + 10) * 1000; // (0 * 60 + 10) * 1000;
-const uint16_t PUMP_PWM_NIGHT  = 4095;
+//const uint16_t PUMP_PWM_NIGHT  = 4095;
 const unsigned long PUMP_ON_NIGHT  = (1 * 60 + 00) * 1000; // (1 * 60 + 00) * 1000;
 const unsigned long PUMP_OFF_NIGHT = (6 * 60 + 00) * 1000; // (4 * 60 + 00) * 1000;
 const unsigned long VALVE_ON_NIGHT = (0 * 60 + 10) * 1000; // (0 * 60 + 10) * 1000;
 unsigned long last_devices_change = 0;
 uint8_t devices_state = 0;
 bool get_stop = false;
+
+volatile bool set_pwm = false;
+volatile uint16_t set_pump_pwm = 4095; // set from server
+uint16_t pump_pwm = 4095; // set in main
 
 uint8_t LoRa_begin_result;
 
@@ -529,22 +532,29 @@ int main(void)
     	else
 #endif
         {
+//    		volatile bool set_pwm = false;
+//    		volatile uint16_t set_pump_pwm = 4095; // set from server
+//    		uint16_t pump_pwm = 4095; // set in main
     		get_stop = false;
     		static unsigned long pump_on;
     		static unsigned long valve_on;
     		static unsigned long pump_off;
-    		static uint16_t pump_pwm;
-            if (all_channel[0].state) {
+    		if(set_pwm) { // set PWM from server
+    			set_pwm = false;
+    			pump_pwm = set_pump_pwm;
+    		}
+//    		static uint16_t pump_pwm;
+            if(all_channel[0].state) {
             	pump_on = PUMP_ON_DAY;
             	pump_off = PUMP_OFF_DAY;
                 valve_on = VALVE_ON_DAY;
-                pump_pwm = PUMP_PWM_DAY;
+//				pump_pwm = PUMP_PWM_DAY;
             }
             else {
             	pump_on = PUMP_ON_NIGHT;
             	pump_off = PUMP_OFF_NIGHT;
                 valve_on = VALVE_ON_NIGHT;
-                pump_pwm = PUMP_PWM_NIGHT;
+//        		pump_pwm = PUMP_PWM_NIGHT;
             }
         	switch(devices_state) {
         	case 0: {

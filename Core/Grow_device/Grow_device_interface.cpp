@@ -10,6 +10,8 @@ extern volatile RTC_TimeTypeDef set_sync_time;
 extern volatile bool rtc_sync_starting; // синхронизация при RTC запуске
 extern volatile bool receive_sync_time;
 extern volatile bool regime_change;
+extern volatile bool set_pwm;
+extern volatile uint16_t set_pump_pwm;
 
 Grow_device_interface grow_device_interface;
 
@@ -385,7 +387,9 @@ uint8_t Grow_device_interface::device_package_handler(Grow_device &grow_device, 
     	// PWM_value = data[0];
     	// PWM_value = (PWM_value << 8) | data[0];
     	// up flag set_PWM
-
+    	set_pump_pwm = data[0];
+    	set_pump_pwm = (PWM_value << 8) | data[0];
+    	set_pwm = true;
 
     	send_type_packet = 0x00; // D
 
