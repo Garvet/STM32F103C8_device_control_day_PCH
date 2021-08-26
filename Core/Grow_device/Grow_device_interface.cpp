@@ -388,7 +388,7 @@ uint8_t Grow_device_interface::device_package_handler(Grow_device &grow_device, 
     	// PWM_value = (PWM_value << 8) | data[0];
     	// up flag set_PWM
     	set_pump_pwm = data[0];
-    	set_pump_pwm = (PWM_value << 8) | data[0];
+    	set_pump_pwm = (set_pump_pwm << 8) | data[1];
     	set_pwm = true;
 
     	send_type_packet = 0x00; // D

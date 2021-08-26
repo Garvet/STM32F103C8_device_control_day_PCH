@@ -53,8 +53,8 @@
 //  LoRa_begin_result = Begin_lora_module(BAND, true, 14, 8, 250E3, 0x4A);
 #else
 
-#define BAND	         43455E4 // basement | object1
-//#define BAND             43325E4 // specialized control | test table
+//#define BAND	         43455E4 // basement | object1
+#define BAND             43325E4 // specialized control | test table
 
 #define PABOOST          true
 #define SIGNAL_POWER     14
@@ -166,10 +166,10 @@ DevicesDataTypeDef devices_data;
 
 
 struct relay_t relay[5];
-struct relay_t *relay_start = &relay[3]; // &relay[0];
-struct relay_t *relay_stop  = &relay[2]; // &relay[1];
+struct relay_t *relay_start = /**/ &relay[3]; //*/ &relay[0];
+struct relay_t *relay_stop  = /**/ &relay[2]; //*/ &relay[1];
 //struct relay_t *relay_r     = ; // &relay[3];
-struct relay_t *relay_valve = &relay[0]; // &relay[4]; // ??? (-) ----- (-) ----- (-)
+struct relay_t *relay_valve = /**/ &relay[0]; //*/ &relay[4]; // ??? (-) ----- (-) ----- (-)
 bool relay_invert[5] = {false, false, false, false, false};
 
 struct mosfet_t freq_signal;
@@ -214,13 +214,13 @@ void use_valve() { // REVERT
 //}
 
 //const uint16_t PUMP_PWM_DAY  = 4095;
-const unsigned long PUMP_ON_DAY  = (1 * 60 + 00) * 1000; // (1 * 60 + 00) * 1000;
-const unsigned long PUMP_OFF_DAY = (4 * 60 + 00) * 1000; // (4 * 60 + 00) * 1000;
-const unsigned long VALVE_ON_DAY = (0 * 60 + 10) * 1000; // (0 * 60 + 10) * 1000;
+const unsigned long PUMP_ON_DAY  = /**/ (1 * 60 + 00) * 1000; //*/ (0 * 60 + 20) * 1000; // (1 * 60 + 00) * 1000;
+const unsigned long PUMP_OFF_DAY = /**/ (4 * 60 + 00) * 1000; //*/ (0 * 60 + 40) * 1000; // (4 * 60 + 00) * 1000;
+const unsigned long VALVE_ON_DAY = /**/ (0 * 60 + 10) * 1000; //*/ (0 * 60 + 10) * 1000; // (0 * 60 + 10) * 1000;
 //const uint16_t PUMP_PWM_NIGHT  = 4095;
-const unsigned long PUMP_ON_NIGHT  = (1 * 60 + 00) * 1000; // (1 * 60 + 00) * 1000;
-const unsigned long PUMP_OFF_NIGHT = (6 * 60 + 00) * 1000; // (4 * 60 + 00) * 1000;
-const unsigned long VALVE_ON_NIGHT = (0 * 60 + 10) * 1000; // (0 * 60 + 10) * 1000;
+const unsigned long PUMP_ON_NIGHT  = /**/ (1 * 60 + 00) * 1000; //*/ (0 * 60 + 20) * 1000; // (1 * 60 + 00) * 1000;
+const unsigned long PUMP_OFF_NIGHT = /**/ (6 * 60 + 00) * 1000; //*/ (0 * 60 + 60) * 1000; // (6 * 60 + 00) * 1000;
+const unsigned long VALVE_ON_NIGHT = /**/ (0 * 60 + 10) * 1000; //*/ (0 * 60 + 10) * 1000; // (0 * 60 + 10) * 1000;
 unsigned long last_devices_change = 0;
 uint8_t devices_state = 0;
 bool get_stop = false;
