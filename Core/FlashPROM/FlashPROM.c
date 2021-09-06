@@ -23,6 +23,7 @@ void Read_control_module_info_from_flash(uint32_t *buff) {
 }
 
 //////////////////////// ОЧИСТКА ПАМЯТИ /////////////////////////////
+// num = 0 - (all), num = 1 - adr, num = 2 - value
 bool Erase_flash(uint8_t num) {
 	if(2 < num)
 		return true;
@@ -40,6 +41,8 @@ bool Erase_flash(uint8_t num) {
 		case 2:
 			EraseInitStruct.PageAddress = STARTADDR_2;
 			break;
+		default:
+			return true;
 	}
 //	EraseInitStruct.PageAddress = STARTADDR;
 //	EraseInitStruct.NbPages = PAGES;
@@ -59,6 +62,7 @@ bool Erase_flash(uint8_t num) {
 	}
 
 	HAL_FLASH_Lock();
+	return false;
 }
 
 //////////////////////// ПОИСК СВОБОДНЫХ ЯЧЕЕК /////////////////////////////

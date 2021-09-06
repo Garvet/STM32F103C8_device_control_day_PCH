@@ -150,7 +150,7 @@ void Set_sync_rtc() {
 	grow_device.set_rtc_sync(true);
 }
 bool Get_stop() {
-	return (rtc_sync_starting || grow_device.get_sleep_state());
+	return (rtc_sync_starting || grow_device.get_sleep_state() || (current_mode == REGISTRATION_MODE));
 }
 
 } // extern "C"
