@@ -12,7 +12,7 @@
 #define BUFFSIZE 2                               // размер буфера для записи
 #define DATAWIDTH 4                              // размерность данных буфера 16 бит - 2, 32 бита - 4
 #define WIDTHWRITE FLASH_TYPEPROGRAM_WORD    // длина слова (16 бит) для записи в функции HAL_FLASH_Program(...), если 32бита тогда FLASH_TYPEPROGRAM_WORD
-#define CELL_OFFSET_PWM_VALUES 2
+#define CELL_OFFSET_PWM_VALUES 1
 //#define DEBUG 0
 
 //typedef uint32_t buf32_t;                        // либо uint32_t
