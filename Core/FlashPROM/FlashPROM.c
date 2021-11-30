@@ -77,8 +77,11 @@ uint32_t Flash_search_adress(uint32_t address, uint16_t cnt)
 
 		if(address == ENDMEMORY - 1) // если достигнут конец флеша
 		{
-			Erase_flash(1);        // тогда очищаем память
-			return STARTADDR;     // устанавливаем адрес для записи с самого начала
+			if(address == STARTADDR_2)
+				Erase_flash(2); // тогда очищаем память STARTADDR_2
+			else
+				Erase_flash(1); // тогда очищаем память STARTADDR
+			return STARTADDR; // устанавливаем адрес для записи с самого начала
 		}
 	}
 
@@ -129,7 +132,7 @@ void Write_to_flash(uint32_t *buff)
 //////////////////////// ЧТЕНИЕ ПОСЛЕДНИХ ДАННЫХ /////////////////////////////
 void Read_last_data_in_flash(uint32_t *buff)
 {
-	if(res_addr == STARTADDR)
+	if((res_addr == STARTADDR) || (res_addr == STARTADDR_2))
 	{
 		return;
 	}
@@ -144,21 +147,25 @@ void Read_last_data_in_flash(uint32_t *buff)
 }
 
 
+// ----- ----- ----- работа с flash-pwm ----- ----- -----
+void Read_pwm_info_from_flash(uint32_t *buff) {
+	  res_addr = Flash_search_adress(STARTADDR_2, DATAWIDTH);
+	  Read_last_data_in_flash(buff);
+}
 uint16_t Read_PWM_info_from_flash() {
-	uint32_t addr = STARTADDR_2 + CELL_OFFSET_PWM_VALUES * DATAWIDTH;
-	if(4095 < *(uint32_t*)addr)
-		return 4095;
-	return *(uint32_t*)addr;
+	uint32_t pwm_value = 0xFFFF; // 0
+	Read_pwm_info_from_flash(&pwm_value);
+	if(4095 < pwm_value)
+		return 0;
+	return pwm_value;
 }
 
 bool Write_PWM_to_flash(uint16_t value) {
-	uint32_t value_32 = value;
-	uint32_t addr = STARTADDR_2 + CELL_OFFSET_PWM_VALUES * DATAWIDTH;
 	bool result = true; // Err
-
 	if(4095 < value)
 		return result;
-	Erase_flash(2);
+	uint32_t value_32 = value;
+	uint32_t addr = Flash_search_adress(STARTADDR_2, 1 * DATAWIDTH);
 
 	HAL_FLASH_Unlock(); // разблокировать флеш
 	if(HAL_FLASH_Program(WIDTHWRITE, addr, value_32) != HAL_OK) {

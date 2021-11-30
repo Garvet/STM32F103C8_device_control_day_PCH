@@ -42,6 +42,9 @@ uint32_t control_module_channel = 0;
 extern volatile bool end_contact;
 
 volatile bool rtc_sync_starting; // синхронизация при RTC запуске
+#if defined( USE_STARTING_PWM_SIGNAL )
+bool starting_power;
+#endif
 
 enum {
     REGISTRATION_MODE = 0,
@@ -70,6 +73,9 @@ uint8_t Begin_lora_module(uint64_t frequency, bool paboost, uint8_t signal_power
 		current_mode = REGISTRATION_MODE;
 		Send_registration_packet();
 		rtc_sync_starting = false;
+#if defined( USE_STARTING_PWM_SIGNAL )
+		starting_power = false;
+#endif
 	}
 	else {
 		grow_device_interface.load_data(grow_device, contact_data, control_module_adr, control_module_channel);
@@ -77,6 +83,9 @@ uint8_t Begin_lora_module(uint64_t frequency, bool paboost, uint8_t signal_power
 		contact_data.wait_recipient(grow_device.get_address_control_module());
 		grow_device.set_rtc_sync(true);
 		rtc_sync_starting = true;
+#if defined( USE_STARTING_PWM_SIGNAL )
+		starting_power = true;
+#endif
 	}
 	return 0;
 }
@@ -120,6 +129,10 @@ void Contact_group_control_module() {
 			if(contact_data.get_state_contact() == SC_PACKET_ACCEPTED) {
 				if(grow_device_interface.check_regist_packet(grow_device, contact_data)) {
 					current_mode = WORKING_MODE;
+					rtc_sync_starting = true;
+#if defined( USE_STARTING_PWM_SIGNAL )
+					starting_power = true;
+#endif
 					contact_data.wait_recipient(grow_device.get_address_control_module()); // Начинаем слушать на наличие управляющих пакетов
 					break;
 				}
@@ -130,6 +143,10 @@ void Contact_group_control_module() {
 	        if(contact_status != 0) {
 	        	if(grow_device_interface.check_contact_error(grow_device, contact_data)) {
 					current_mode = REGISTRATION_MODE;
+					rtc_sync_starting = false;
+#if defined( USE_STARTING_PWM_SIGNAL )
+					starting_power = false;
+#endif
 	        		contact_data.broadcast_receive();
 	        	}
 	        	else {
@@ -150,7 +167,11 @@ void Set_sync_rtc() {
 	grow_device.set_rtc_sync(true);
 }
 bool Get_stop() {
+#if defined( USE_STARTING_PWM_SIGNAL )
+	return (rtc_sync_starting || starting_power || grow_device.get_sleep_state() || (current_mode == REGISTRATION_MODE));
+#else
 	return (rtc_sync_starting || grow_device.get_sleep_state() || (current_mode == REGISTRATION_MODE));
+#endif
 }
 
 } // extern "C"

@@ -4,7 +4,6 @@
 //#define CONTACT_DATA_MAX_PACKET 10
 #include <main.h>
 
-
 typedef struct {
 	float lux;
 	float temperature;

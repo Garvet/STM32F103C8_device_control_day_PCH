@@ -12,6 +12,9 @@ extern volatile bool receive_sync_time;
 extern volatile bool regime_change;
 extern volatile bool set_pwm;
 extern volatile uint16_t set_pump_pwm;
+#if defined( USE_STARTING_PWM_SIGNAL )
+extern bool starting_power; // синхронизация управляющего сигнала при запуске
+#endif
 
 Grow_device_interface grow_device_interface;
 
@@ -152,6 +155,11 @@ uint8_t Grow_device_interface::build_data_packet(Grow_device &grow_device, LoRa_
 					++i;
                 }
             }
+#if defined( USE_STARTING_PWM_SIGNAL )
+            if(starting_power) {
+            	// (-) ----- отправка пакета запроса PWM при первом контакте
+            }
+#endif
             contact_data.wait_recipient(grow_device.get_address_control_module());
         }
     }
@@ -390,7 +398,9 @@ uint8_t Grow_device_interface::device_package_handler(Grow_device &grow_device, 
     	set_pump_pwm = data[0];
     	set_pump_pwm = (set_pump_pwm << 8) | data[1];
     	set_pwm = true;
-
+#if defined( USE_STARTING_PWM_SIGNAL )
+    	starting_power = false;
+#endif
     	send_type_packet = 0x00; // D
 
     	break;
