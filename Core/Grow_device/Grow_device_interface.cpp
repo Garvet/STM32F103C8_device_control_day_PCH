@@ -16,6 +16,10 @@ extern volatile uint16_t set_pump_pwm;
 extern bool starting_power; // синхронизация управляющего сигнала при запуске
 #endif
 
+#define NO_REPETITION_SET_PWM
+
+
+
 Grow_device_interface grow_device_interface;
 
 static std::array<LoRa_packet, CONTACT_DATA_MAX_PACKET> all_packets;
@@ -395,9 +399,21 @@ uint8_t Grow_device_interface::device_package_handler(Grow_device &grow_device, 
     	// PWM_value = data[0];
     	// PWM_value = (PWM_value << 8) | data[0];
     	// up flag set_PWM
+
+#if defined( NO_REPETITION_SET_PWM )
+    	static uint16_t new_pump_pwm;
+    	new_pump_pwm = data[0];
+    	new_pump_pwm = (new_pump_pwm << 8) | data[1];
+    	if(set_pump_pwm != new_pump_pwm) {
+    		set_pump_pwm = new_pump_pwm;
+    		set_pwm = true;
+    	}
+#else
     	set_pump_pwm = data[0];
     	set_pump_pwm = (set_pump_pwm << 8) | data[1];
     	set_pwm = true;
+#endif
+
 #if defined( USE_STARTING_PWM_SIGNAL )
     	starting_power = false;
 #endif

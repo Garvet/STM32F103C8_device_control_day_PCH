@@ -53,8 +53,8 @@
 //  LoRa_begin_result = Begin_lora_module(BAND, true, 14, 8, 250E3, 0x4A);
 #else
 
-//#define BAND	         43455E4 // basement | object1
-#define BAND             43325E4 // specialized control | test table
+#define BAND	         43455E4 // basement | object1
+//#define BAND             43325E4 // specialized control | test table
 
 #define PABOOST          true
 #define SIGNAL_POWER     14
@@ -317,7 +317,7 @@ int main(void)
 
   Read_control_module_info_from_flash(control_module_id_and_channel);
   Get_control_module_info_from_main(control_module_id_and_channel);
-  pump_pwm = Read_PWM_info_from_flash();
+  set_pump_pwm = pump_pwm = Read_PWM_info_from_flash();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

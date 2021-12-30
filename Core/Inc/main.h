@@ -99,7 +99,7 @@ void Error_Handler(void);
 #define RELAY5_PIN_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
-#define USE_STARTING_PWM_SIGNAL 1
+//#define USE_STARTING_PWM_SIGNAL 1
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
